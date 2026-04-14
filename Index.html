@@ -386,6 +386,8 @@ function render(){
     var h=document.createElement("div");h.className="sh";
     h.innerHTML='<div class="si">'+sec.icon+'</div><div class="st">'+sec.title+'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<button type="button" class="edit-sec" title="Rename">&#9998;</button>'
+      +'<button type="button" class="del-sec" title="Delete">&#215;</button>'
       +'<div class="sc"><span class="dc">'+sd+'</span>/'+sec.items.length+'</div>'
       +'<div class="cv">&#9662;</div></div>';
     h.querySelector('.edit-sec').addEventListener('click',(function(sid){return function(e){openRenameSec(sid,e);};})(sec.id));
@@ -463,7 +465,7 @@ function sendAI(){
     var bub=addBub(mt.trim().replace(/\\n/g,"<br>"),"ast");
     adds.forEach(function(item){
       var ab=document.createElement("div");ab.className="aab";ab.textContent="+ Add: "+item;
-      ab.addEventListener("click",function(){addTo(secs[0].id,item);ab.textContent="\u2713 Added!";ab.style.color="${accent}";});
+      ab.addEventListener("click",function(){addTo(secs[0].id,item);ab.textContent="\u2713 Added!";ab.style.color="var(--accent)";});
       bub.appendChild(ab);
     });
   })
