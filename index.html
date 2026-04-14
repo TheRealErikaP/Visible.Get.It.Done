@@ -674,7 +674,6 @@ function initPage() {
   var gb = document.getElementById('genBtn');
   if (gb) {
     gb.onclick = function() {
-      alert('Tapped! buildApp type: ' + typeof buildApp + ', selP: ' + selP);
       var ne = document.getElementById('userName');
       ne.style.borderColor = '';
       var name = ne.value.trim();
@@ -690,6 +689,7 @@ function initPage() {
       var email = document.getElementById('userEmail').value.trim();
       try { if (email) localStorage.setItem('lead' + Date.now(), JSON.stringify({name:name, email:email})); } catch(e) {}
       try {
+        if (typeof buildApp !== 'function') { alert('App builder not loaded yet - please try again!'); return; }
         var appHtml = buildApp(name, PRESETS[selP], sections);
         var blob = new Blob([appHtml], {type:'text/html'});
         var url = URL.createObjectURL(blob);
