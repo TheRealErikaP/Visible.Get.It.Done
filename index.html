@@ -760,7 +760,7 @@ function initPage() {
       try { if (email) localStorage.setItem('lead' + Date.now(), JSON.stringify({name:name, email:email})); } catch(e) {}
       // Send to Zapier -> Flodesk
       if (email) {
-        fetch('https://hooks.zapier.com/hooks/catch/6339110/u7nucv8/', {
+        fetch('https://hook.us2.make.com/2f5ksm0u3zfz4jt0kbjf6olzhraa9ygv', {
           method: 'POST',
           body: JSON.stringify({email: email, first_name: name}),
         }).catch(function(){});
