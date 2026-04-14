@@ -762,7 +762,8 @@ function initPage() {
       if (email) {
         fetch('https://hook.us2.make.com/2f5ksm0u3zfz4jt0kbjf6olzhraa9ygv', {
           method: 'POST',
-          body: JSON.stringify({email: email, first_name: name}),
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'email=' + encodeURIComponent(email) + '&first_name=' + encodeURIComponent(name),
         }).catch(function(){});
       }
       try {
