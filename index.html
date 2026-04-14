@@ -475,8 +475,8 @@ function reorganize(){
   var all=[];secs.forEach(function(s){s.items.filter(function(i){return !i.done;}).forEach(function(i){all.push({id:i.id,text:i.text,csid:s.id});});});
   if(!all.length){tk.remove();addBub("Nothing to reorganize!","ast");return;}
   var sn=secs.map(function(s){return s.title;}).join(", ");
-  var il=all.map(function(i,x){return (x+1)+". \\""+i.text+"\\"";}).join("\\n");
-  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:500,messages:[{role:"user",content:"My sections: "+sn+".\\nReply ONLY with JSON array like [{id:1,section:\\"Work\\"}]\\nTasks:\\n"+il}]})})
+  var il=all.map(function(i,x){return (x+1)+'. "'+i.text+'"'}).join("\n");
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":ak,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:500,messages:[{role:"user",content:"My sections: "+sn+".\nReply ONLY with JSON array like [{id:1,section:\"Work\"}]\nTasks:\n"+il}]})})
   .then(function(r){return r.json();})
   .then(function(data){
     var raw=(data.content&&data.content[0]&&data.content[0].text||"").trim();
