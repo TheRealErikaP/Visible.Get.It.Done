@@ -674,6 +674,7 @@ function initPage() {
   var gb = document.getElementById('genBtn');
   if (gb) {
     gb.onclick = function() {
+      alert('Tapped! buildApp type: ' + typeof buildApp + ', selP: ' + selP);
       var ne = document.getElementById('userName');
       ne.style.borderColor = '';
       var name = ne.value.trim();
