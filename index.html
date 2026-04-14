@@ -305,7 +305,23 @@ function buildApp(name, c, sectionNames) {
     `.bb input::placeholder{color:rgba(255,255,255,.2);}`,
     `.abtn{background:${highlight};color:white;border:none;border-radius:10px;padding:12px 16px;font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:.06em;cursor:pointer;flex-shrink:0;}`,
     `.toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-60px);background:${accent};color:white;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:9px 22px;border-radius:20px;transition:transform .3s;pointer-events:none;z-index:99;white-space:nowrap;}`,
-    `.toast.on{transform:translateX(-50%) translateY(0);}`
+    `.toast.on{transform:translateX(-50%) translateY(0);}`,
+    `.sec-actions{display:flex;align-items:center;gap:6px;}`,
+    `.edit-sec{background:none;border:none;color:rgba(255,255,255,.2);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:4px;line-height:1;}`,
+    `.edit-sec:hover{color:var(--gold);background:rgba(255,255,255,.06);}`,
+    `.del-sec{background:none;border:none;color:rgba(255,255,255,.15);cursor:pointer;font-size:13px;padding:4px 6px;border-radius:4px;line-height:1;}`,
+    `.del-sec:hover{color:var(--hi);background:rgba(255,255,255,.06);}`,
+    `.add-sec-fab{position:fixed;bottom:calc(82px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:8px 18px;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;z-index:25;font-family:"DM Sans",sans-serif;white-space:nowrap;}`,
+    `.add-sec-fab:active{opacity:.7;}`,
+    `.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:24px;}`,
+    `.modal-overlay.on{display:flex;}`,
+    `.modal{background:#0f1e2c;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;width:100%;max-width:340px;}`,
+    `.modal-title{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.06em;color:var(--gold);margin-bottom:16px;}`,
+    `.modal-inp{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;padding:12px 14px;font-family:"DM Sans",sans-serif;font-size:16px;color:var(--text);outline:none;margin-bottom:12px;}`,
+    `.modal-inp:focus{border-color:var(--accent);}`,
+    `.modal-btns{display:flex;gap:8px;}`,
+    `.modal-save{flex:1;background:var(--accent);color:white;border:none;border-radius:8px;padding:12px;font-family:"Bebas Neue",sans-serif;font-size:18px;letter-spacing:.06em;cursor:pointer;}`,
+    `.modal-cancel{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px 16px;font-family:"DM Sans",sans-serif;font-size:14px;cursor:pointer;}`
   ].join('\n');
 
   const js = `
@@ -371,6 +387,8 @@ function render(){
       +'<div style="display:flex;align-items:center;gap:8px;">'
       +'<div class="sc"><span class="dc">'+sd+'</span>/'+sec.items.length+'</div>'
       +'<div class="cv">&#9662;</div></div>';
+    h.querySelector('.edit-sec').addEventListener('click',(function(sid){return function(e){openRenameSec(sid,e);};})(sec.id));
+    h.querySelector('.del-sec').addEventListener('click',(function(sid){return function(e){deleteSec(sid,e);};})(sec.id));
     h.addEventListener("click",(function(sid){return function(){toggleSec(sid);};})(sec.id));
     el.appendChild(h);
     var b=document.createElement("div");b.className="sb";
@@ -518,6 +536,46 @@ function toggleAIMic(){
   rec.onerror=function(){lsn=false;btn.classList.remove("ls");btn.innerHTML="&#127908;";};
   rec.start();
 }
+var modalMode='',modalSid='';
+function openAddSec(){
+  modalMode='add';modalSid='';
+  document.getElementById('modalTitle').textContent='ADD SECTION';
+  document.getElementById('modalInp').value='';
+  document.getElementById('secModal').classList.add('on');
+  setTimeout(function(){document.getElementById('modalInp').focus();},300);
+}
+function openRenameSec(sid,e){
+  e.stopPropagation();
+  modalMode='rename';modalSid=sid;
+  var sec=secs.find(function(s){return s.id===sid;});
+  document.getElementById('modalTitle').textContent='RENAME SECTION';
+  document.getElementById('modalInp').value=sec.title;
+  document.getElementById('secModal').classList.add('on');
+  setTimeout(function(){var i=document.getElementById('modalInp');i.focus();i.select();},300);
+}
+function deleteSec(sid,e){
+  e.stopPropagation();
+  var sec=secs.find(function(s){return s.id===sid;});
+  if(sec.items.length>0){if(!confirm('Delete "'+sec.title+'" and all '+sec.items.length+' tasks in it?'))return;}
+  secs=secs.filter(function(s){return s.id!==sid;});
+  save();render();
+}
+function closeModal(){document.getElementById('secModal').classList.remove('on');}
+function saveModal(){
+  var val=document.getElementById('modalInp').value.trim();
+  if(!val)return;
+  if(modalMode==='rename'){
+    var sec=secs.find(function(s){return s.id===modalSid;});
+    if(sec){sec.title=val;}
+  } else {
+    var newId='sec_'+Date.now();
+    var icons=['*','+','o','-','~','@','#','!'];
+    secs.push({id:newId,title:val,icon:icons[secs.length%icons.length],items:[]});
+  }
+  closeModal();save();render();
+}
+document.getElementById('modalInp').addEventListener('keydown',function(e){if(e.key==='Enter')saveModal();});
+document.getElementById('secModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 load();ukb();render();
 `;
 
@@ -601,6 +659,17 @@ load();ukb();render();
   <button type="button" class="abtn" id="addbtn" onclick="addGlobal()">ADD</button>
 </div>
 <div class="toast" id="toast">Saved &#10003;</div>
+<button type="button" class="add-sec-fab" onclick="openAddSec()">+ Add Section</button>
+<div class="modal-overlay" id="secModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">RENAME SECTION</div>
+    <input class="modal-inp" id="modalInp" placeholder="Section name" autocomplete="off"/>
+    <div class="modal-btns">
+      <button type="button" class="modal-save" onclick="saveModal()">SAVE</button>
+      <button type="button" class="modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 \x3Cscript>${js}<\/script>
 \x3C/body>
 \x3C/html>`;
@@ -687,7 +756,15 @@ function initPage() {
         .map(function(i) { return i.value.trim(); }).filter(Boolean);
       if (!sections.length) { alert('Add at least one section!'); return; }
       var email = document.getElementById('userEmail').value.trim();
+      // Save locally
       try { if (email) localStorage.setItem('lead' + Date.now(), JSON.stringify({name:name, email:email})); } catch(e) {}
+      // Send to Zapier -> Flodesk
+      if (email) {
+        fetch('https://hooks.zapier.com/hooks/catch/6339110/u7n29cb/', {
+          method: 'POST',
+          body: JSON.stringify({email: email, first_name: name}),
+        }).catch(function(){});
+      }
       try {
         if (typeof buildApp !== 'function') { alert('App builder not loaded yet - please try again!'); return; }
         var appHtml = buildApp(name, PRESETS[selP], sections);
